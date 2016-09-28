@@ -3,3 +3,6 @@
 *.pdf
 *.mat
 *.data
+*.png
+*.fig
+__pycache__/*
