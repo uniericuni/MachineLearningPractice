@@ -33,12 +33,10 @@ X = np.ones((dim+1,n))                              # augmented X with additiona
 X[1:,:] = xTest                                     
 t = np.dot(theta,X)                                 # exponential term of sigmoid function
 error = 0
-errorList = []
 for i in range(0,n):                                # error accumulation
     if (t[i]>=0 and yTest[0,i]==-1) or (t[i]<0 and yTest[0,i]==1):
-        errorList.append(i)
         error += 1
 
 # export results
 print('error rate: ', error/n)                      
-sio.savemat('result.mat', {'theta':theta, 'theta_x':t, 'error_rate':error/n, 'errorList':errorList})
+sio.savemat('result.mat', {'theta':theta, 'theta_x':t, 'error_rate':error/n})

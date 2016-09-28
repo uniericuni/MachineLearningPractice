@@ -60,7 +60,7 @@ def newton(x, y, default, la):
     pre = -float('Inf')                                         # previous gradient norm offset
     gList = []                                                  
     eList = []
-    tList = []
+    gdList = []
 
     while abs(g-pre) > bound:                                   # iterate until the gradient norm barely changes
         pre = g
@@ -71,10 +71,10 @@ def newton(x, y, default, la):
         theta -= np.dot(np.linalg.inv(H),np.transpose(G))[:,0]  # Newton method
         error = oFunc(x, y, theta, la)                          # objective function
         print('error: ', str(error), '| iteration: ', str(it), '| G: ', g)
-        gList.append(G)
+        gList.append(g)
         eList.append(error)
-        tList.append(theta)
+        gdList.append(abs(g-pre))
 
     # export training detail
-    sio.savemat('trainingDetail.mat', {'theta_List':tList, 'gradient_List':gList, 'error_List':eList, 'bound':bound})
+    sio.savemat('trainingDetail.mat', {'gradient_diff_List':gdList, 'gradient_List':gList, 'error_List':eList, 'bound':bound})
     return theta
