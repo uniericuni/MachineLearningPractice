@@ -93,7 +93,6 @@ for i in range(0,n):
     if label != yTest[i]:                                       # check if we have the correct prediction
         error2 += 1
 
-
 print('  method1 predicting error rate: ', error1/n)
 print('  method2 predicting error rate: ', error2/n)
 print('majority classifying error rate: ', min(sum(qy)/trainingNum, sum(1-qy)/trainingNum))
