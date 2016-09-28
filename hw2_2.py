@@ -10,45 +10,53 @@ import matplotlib.pyplot as plt
 import LR2 as lr
 
 # training env setting
-trainingNum = 2000
-e = 0.01
-la = 10
+trainingNum = 2000                                  # size of training data
+e = 0.01                                            # acceptable error rate
+la = 10                                             # regularizing constant
+it = 0                                              # iterator
 mnist_49_3000 = sio.loadmat('mnist_49_3000.mat')    # import data
-x = mnist_49_3000['x']
-y = mnist_49_3000['y']
+x = mnist_49_3000['x']                              # feature vectors
+y = mnist_49_3000['y']                              # labels
 dim, n = x.shape
-
-# modify label
-# for i in range(0,n):
-#     if y[:,i] == [-1]:    
-#         y[:,i] = [0] 
 
 # seperating training and testing data
 xT = x[:,0:trainingNum]
-dim, n = xT.shape
 yT = y[:,0:trainingNum]
-xTest = x[:,trainingNum:n-1]
-yTest = y[:,trainingNum:n-1]
+xTest = x[:,trainingNum:n]
+yTest = y[:,trainingNum:n]
 
-print(str(trainingNum))
-theta = np.zeros(dim+1)  # training offset
-H=lr.hessFunc(xT,yT,theta,la)
-print(H)
-'''
 # Newton optimization
-it = 0
-error = float('Inf')
-theta = np.zeros(dim+1)  # training offset
-while error > e:
+theta = np.zeros(dim+1)                             # norm offset
+error = float('Inf')                                # error rate offset
+
+for i in range(0,1000):
     it += 1
     G = lr.gradFunc(xT, yT, theta, la)
-    print G
     H = lr.hessFunc(xT, yT, theta, la)
-    print H
-    theta -= np.linalg.inv(H) * G
+    delta = np.dot(np.linalg.inv(H),G)[:,0]
+    theta -= delta
     error = lr.oFunc(x, y, theta, la)
-    print('error: %s | iteration: %s', str(error), str(it))
+    print('error: ', str(error), '| iteration: ', str(it), '| G: ', np.linalg.norm(G))
 
-print('error: %s | iteration: %s', str(error), str(it))
-print('theta: ' + theta)
-'''
+sio.savemat('theta.mat', {'theta':theta})
+
+dim, n = xTest.shape
+X = np.ones((dim+1,n))
+X[1:,:] = xTest
+t = -np.dot(theta,X)
+
+count1 = 0
+count2 = 0
+count3 = 0
+count4 = 0
+for i in range(0,n):
+    if t[i]>=0 and yTest[0,i]==-1:
+        count1 += 1
+    if t[i]>=0 and yTest[0,i]==1:
+        count2 += 1
+    if t[i]<=0 and yTest[0,i]==-1:
+        count3 += 1
+    if t[i]<=0 and yTest[0,i]==1:
+        count4 += 4
+
+print(count1, '|', count2, '|', count3, '|', count4)
