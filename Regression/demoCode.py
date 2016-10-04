@@ -14,7 +14,6 @@ x = data['X']                                       # feature vectors
 y = data['y']                                       # labels
 n, dim = x.shape
 trainingNum = 150                                   # size of training data
-alpha = 1e-4
 la = 10                                             # regularizing constant
 e = 1e-14
 
@@ -28,7 +27,7 @@ yTst = y[trainingNum:n,:]
 rg = Reg()
 w = np.zeros((dim, 1))                              # starting point
 rg.dataUpdate(xTr, yTr, xTst, yTst)                 # Newton optimization
-out, err = rg.ridgeReg(w, la, e, alpha)             # Smallscale ridge regression
+out, err = rg.ridgeReg(w, la, e)                    # Regression
 
 # testing
 test = np.array([1, 100,100])
