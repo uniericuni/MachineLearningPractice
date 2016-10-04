@@ -16,13 +16,17 @@ class Reg:
 
     # constructor
     def __init__(self):
-        self.trX = np.array([[]])
-        self.trY = np.array([[]])
-        self.tstX = np.array([[]])
-        self.tstY = np.array([[]])
-        self.dim = 0
-        self.trSize = 0
-        self.tstSize = 0
+        self.clear()
+
+    # clear regression object
+    def clear(self):
+        self.trX = None
+        self.trY = None
+        self.tstX = None
+        self.tstY = None
+        self.dim = None
+        self.trSize = None
+        self.tstSize = None
     
     # data parsing    
     def dataUpdate(self, trX, trY, tstX, tstY):
@@ -43,70 +47,81 @@ class Reg:
         print('------------------------------------\n')
 
     # ridge regressoin
-    def ridgeReg(self, w, la, e, alpha, method='GD'):
-        wout = w                                        # regression starting point
+    def ridgeReg(self, theta=None, la=0, e=1e-14, alpha=1e-3, method='SLSR'):
         it = 0                                          # iterator
         err = 0                                         # error rate
-        g = float('Inf')                                # gradient norm offset
-        pre = -float('Inf')                             # previous gradient norm offset
-         
-        # Gradient Descent
-        if method is 'GD':
-            while it == 0:                              # iterate until the gradient norm barely changes
-            #while abs(g-pre) > e:                      # iterate until the gradient norm barely changes
-                pre = g
-                it += 1                                 # iterator
-                G = self.gradFunc(w, la)                # gradient
-                g = np.linalg.norm(G)                   # gradient norm
-                wout -= alpha*G                         # gradient descent
-                TrErr = self.oFunc(w, la)               # objective function
-                print('iteration: ', str(it), ' | error: ', str(TrErr),  ' | G: ', g)
+        pre = -float('Inf')                             # previous value offset
+        if theta is None:                               # regression starting point
+            out = np.zeros(self.dim+1)
+        else:
+            out = theta 
 
-        # Small Scale
-        elif method is 'SS':
-            X = self.trX - np.average(self.trX, axis=0)
-            y = self.trY - np.average(self.trY)
-            A = np.dot(np.transpose(X),X)+self.trSize*la*np.eye(self.dim)
-            B = np.dot(np.transpose(X), y)
-            wout = -np.dot(np.linalg.inv(A), B)
-       
+        # Robust Regression
+        if method is 'RR':
+            print('robut regresion ...')
+            print('------------------------------------')
+            while abs(np.linalg.norm(out)-pre) > e:     # not terminate until the minimizer barely changes
+                pre = np.linalg.norm(out)
+                it += 1
+                out = self.sol(True, out=out)
+                print('out: ',out)
+                # print('iteration: ', str(it), ' | norm of theta: ', str(np.linalg.norm(out)), ' | error: ', self.oFunc(out))
+
+        # Small Scale Least Squre Regression
+        elif method is 'SLSR':
+            print('ordinary least square regression ...')
+            out = self.sol(False)                       # minimizer
+        
         # Wrong Method
         else:
             print('error: regression method must exist ...\n')
             quit()
-
-        X = np.average(self.trX, axis=0)
-        y = np.average(self.trY, axis=0)
-        out = np.zeros(self.dim+1)
-        out[0] = y[0]-np.dot(X,wout)[0]
-        out[1:] = wout[:,0]
-        err = self.sqrErr(out)
+        
+        err = self.oFunc(out)
+        print('------------------------------------')
+        print('theta', out)
+        print('error', err)
+        print('------------------------------------\n')
         return out, err 
+    
+    # solution to regression
+    def sol(self, weight, x=None, y=None, la=0, n=None, out=None):
+        if x is None:
+            x = self.trX
+        if y is None:
+            y = self.trY
+        if n is None:
+            n, d = x.shape
+        if out is None:
+            out = np.zeros(self.dim+1)
 
-    # gradient of the objective function
-    def gradFunc(self, w, la):
-        X = self.trX - np.average(self.trX, axis=0)
-        y = self.trY - np.average(self.trY, axis=0)
-        A = np.dot(np.transpose(X),X)+self.trSize*la*np.eye(self.dim)
-        B = np.dot(np.transpose(X), y)
-        return 2*np.dot(A,w)-2*B
+        X = x - np.average(x, axis=0)                               # X bar
+        Y = y - np.average(y)                                       # Y bar
+        if weight:                                                  # whether it is weighted or not
+            C = np.diag(self.psi(Y[:,0]-np.dot(X,out[1:])-out[0])) 
+        else:
+            C = np.eye(n)
+        A = np.dot(np.transpose(X),np.dot(C,X))                     # A
+        B = np.dot(np.transpose(X), np.dot(C,y))                    # B
+        wout = np.dot(np.linalg.inv(A), B)                          # solution to the minimizer
+        b = np.average(np.dot(C,self.trY)) - np.dot(np.average(np.dot(C,self.trX), axis=0), wout)[0]
+        out[0] = b
+        out[1:] = wout[:,0]
+        return out
 
     # objective function for input x, y, theta and la(lambda)
-    def oFunc(self, w, la):
-        X = self.trX - np.average(self.trX, axis=0)
-        y = self.trY - np.average(self.trY, axis=0)
-        return (np.linalg.norm(y-np.dot(X,w))**2) + self.trSize*(np.linalg.norm(w)**2)
-
-    # square Error
-    def sqrErr(self, theta, x=None, y=None, n=None):
+    def oFunc(self, theta, x=None, y=None, la=0, n=None):
         if x is None:
             x=self.tstX
-            n=self.tstSize
         if y is None:
             y=self.tstY
-            n=self.tstSize
         if n is None:
             n,d = x.shape
         X = np.ones((self.tstSize,self.dim+1))
         X[:,1:] = x
-        return np.linalg.norm(y[:,0]-np.dot(X,theta))**2/n
+        return np.linalg.norm(y[:,0]-np.dot(X,theta))**2/n + la * np.linalg.norm(theta[1:])**2
+    
+    # psi/r
+    def psi(self, r):
+        return 1/np.sqrt(1+r**2)    
+        

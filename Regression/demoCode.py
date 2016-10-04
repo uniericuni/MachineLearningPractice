@@ -28,13 +28,11 @@ yTst = y[trainingNum:n,:]
 rg = Reg()
 w = np.zeros((dim, 1))                              # starting point
 rg.dataUpdate(xTr, yTr, xTst, yTst)                 # Newton optimization
-out, err = rg.ridgeReg(w, la, e, alpha, 'SS')       # Smallscale ridge regression
+out, err = rg.ridgeReg(w, la, e, alpha)             # Smallscale ridge regression
 
 # testing
 test = np.array([1, 100,100])
 y = np.dot(out, test)
 
 # info export
-print('theta: ', out)
-print('error: ', err)
 print('given [100, 100], the corresponding y is: ', y)
