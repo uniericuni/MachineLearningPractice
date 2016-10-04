@@ -29,5 +29,5 @@ outR, err = rg.ridgeReg(method='RR', e=1e-14)
 plt.plot(t, outR[1:]*t+outR[0], 'r:', label='robust')
 
 #plotting
-legned = plt.legend(loc='upper right', shadow=True)
+legend = plt.legend(loc='upper right', shadow=True)
 plt.show()
