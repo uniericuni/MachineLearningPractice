@@ -5,6 +5,7 @@
 *.data
 *.png
 *.fig
+*.txt
 
 __pycache__/*
 HW/*
