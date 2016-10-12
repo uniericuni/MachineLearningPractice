@@ -20,7 +20,7 @@ x = x.transpose()
 y = y.transpose()
 n, dim = x.shape
 la = 0.001                                          # regularizing constant
-e = 1e-4
+e = 1e-4                                            # stop criteria
 trainingNum = 20000
 
 # seperating training and testing data
@@ -29,11 +29,11 @@ yTr = y[0:trainingNum,:]
 xTst = x[0:trainingNum,:]
 yTst = y[0:trainingNum,:]
 
-# regression object built up
+# --------------- gradient regression --------------- #
 rg = Reg()
 w = np.zeros((dim+1, 1))                            # starting point
 rg.dataUpdate(xTr, yTr, xTst, yTst)                 # Newton optimization
-out, err = rg.ridgeReg(w, la, e, method='GD')              # Regression
+out, err = rg.ridgeReg(w, la, e, method='GD')       # Regression
 
 # plotting
 fig = plt.figure()
@@ -49,15 +49,14 @@ t = pl.frange(0, 8, 0.01)
 w = -out[1]/out[2]
 b = -out[0]/out[2]
 plt.plot(t, w*t+b, 'g-', label='hyperplane')
+legend = plt.legend(loc='upper right', show=True)
 plt.show()
 
-
-# stochastic gradient regression
-e = 1e-5
+# --------------- stochastic gradient regression --------------- #
 rg.clear()
 w = np.zeros((dim+1, 1))                            # starting point
 rg.dataUpdate(xTr, yTr, xTst, yTst)                 # Newton optimization
-out, err = rg.ridgeReg(w, la, e, method='SGD')              # Regression
+out, err = rg.ridgeReg(w, la, e, method='SGD')      # Regression
 
 # plotting
 fig = plt.figure()
@@ -73,4 +72,5 @@ t = pl.frange(0, 8, 0.01)
 w = -out[1]/out[2]
 b = -out[0]/out[2]
 plt.plot(t, w*t+b, 'g-', label='hyperplane')
+legend = plt.legend(loc='upper right', show=True)
 plt.show()

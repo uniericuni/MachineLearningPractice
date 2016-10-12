@@ -63,7 +63,7 @@ class Reg:
                 msg = 'iteration: ' + str(it) + ' | norm of theta: ' + str(np.linalg.norm(out)) + ' | error: ' + str(self.oFunc(out))
                 f.write(msg)                            # training details recording
             f.close()
-            err = self.oFunc(out)                           # measuring the square error
+            err = self.oFunc(out)                       # measuring the square error
 
         # Gradient Descent
         elif method is 'GD':
@@ -75,7 +75,7 @@ class Reg:
                 pre = np.linalg.norm(out)
                 it += 1
                 alpha = 100/it
-                out = out - alpha*self.Grad(la=la, rtn=out)    # gradient descent
+                out = out - alpha*self.Grad(la=la, rtn=out) 
                 msg = 'iteration: ' + str(it) + ' | norm of theta: ' + str(np.linalg.norm(out)) + ' | error: ' + str(self.oFunc2(out,la=la)) + '\n'
                 f.write(msg)                            # training details recording
             f.close()
@@ -101,10 +101,10 @@ class Reg:
                     out = out - alpha*self.Grad(x=xi, y=yi, la=la, rtn=out, n=1)    # gradient descent
                     err = self.oFunc2(out,la=la)
                     msg = 'iteration: ' + str(it) + ' | small iteration: ' + str(itt) + ' | norm of theta: ' + str(np.linalg.norm(out)) + ' | error: ' + str(err) + '\n'
-                    f.write(msg)                            # training details recording
+                    f.write(msg)                        # training details recording
                     line.append(err)
                     itt += 1
-                    if err < M:
+                    if err < M:                         # small terminating condition
                         M = err
                         break
 
@@ -118,7 +118,7 @@ class Reg:
         elif method is 'SLSR':
             print('ordinary least square regression ...')
             out = self.sol(False, la=la)                # minimizer
-            err = self.oFunc(out)                           # measuring the square error
+            err = self.oFunc(out)                       # measuring the square error
         
         # Wrong Method
         else:
@@ -131,7 +131,7 @@ class Reg:
         print('------------------------------------\n')
         return out, err 
     
-    # solution argmin objective function
+    # solution argmin objective (linear regression) function
     def sol(self, weight, x=None, y=None, la=0, n=None, rtn=None):
         # set defaults
         if x is None:
@@ -159,7 +159,7 @@ class Reg:
         rtn[1:] = wout[:,0]
         return rtn
 
-    # gradient of hinge loss
+    # gradient of hinge loss ERM as soft margin seperating hyperplane
     def Grad(self, x=None, y=None, la=0, n=None, rtn=None):
         # set defaults
         if x is None:
@@ -174,7 +174,7 @@ class Reg:
         X = np.ones((n,self.dim+1))
         X[:,1:] = x                                                     # X bar
         hl = self.hingeBi(y, np.dot(X,rtn))                             # Hinge Loss
-        wbar = np.zeros((self.dim+1,1))                      	# w bar
+        wbar = np.zeros((self.dim+1,1))                      	        # w bar
         wbar[1:] = rtn[1:,:]   
         rtn = -1 * np.sum((hl*y)*X,axis=0).reshape(self.dim+1,1)/n + la*wbar
         return rtn
@@ -192,7 +192,7 @@ class Reg:
         X[:,1:] = x
         return (np.linalg.norm(y[:,0]-np.dot(X,theta))**2)/n + la * np.linalg.norm(theta[1:])**2
     
-    # soft margin
+    # regularized hinge loss ERM as soft margin seperating hyperplane
     def oFunc2(self, theta, x=None, y=None, la=0, n=None):
         # set defaults
         if x is None:
@@ -210,14 +210,14 @@ class Reg:
 
     # psi/r
     def psi(self, r):
-        return 1/np.sqrt(1+r**2)                                    # psi/r weight of a given rho 
+        return 1/np.sqrt(1+r**2)                                        # psi/r weight of a given rho 
 
     # Hinge Loss
     def hinge(self,y,t):                                            
         n,d = y.shape
         return np.maximum(np.zeros((n,d)),1-y*t)
         
-    # Binary Hinge Loss
+    # Binary Hinge Loss (0 or 1)
     def hingeBi(self,y,t):
         return self.hinge(y,t)/(1-y*t)
         
