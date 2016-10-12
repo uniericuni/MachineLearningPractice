@@ -1,5 +1,7 @@
 import scipy.io as sio
 import numpy as np
+import matplotlib.pyplot as plt
+import pylab as pl
 import random
 
 # Regression Object
@@ -86,20 +88,36 @@ class Reg:
             f = open('trainingDetail.txt', 'w')         # record training detail
             msg = 'Robust Regression Results ... \n\n'
             f.write(msg)
+            line = []
             while abs(np.linalg.norm(out)-pre) > e:     # not terminate until the minimizer barely changes
                 print("error diff: ",abs(np.linalg.norm(out)-pre))
-                order = random.rand(n,1)
+                order = np.random.permutation(self.trSize)
                 pre = np.linalg.norm(out)
                 it += 1
                 alpha = 100/it
+                M = float('Inf')
+                itt = 0
                 for i in order:
-                    out = out - alpha*self.Grad(x=self.trX(i,:), y=self.tr, la=la, rtn=out)    # gradient descent
-                    msg = 'iteration: ' + str(it) + ' | norm of theta: ' + str(np.linalg.norm(out)) + ' | error: ' + str(self.oFunc2(out,la=la)) + '\n'
+                    xi = self.trX[i,:].reshape((self.dim,1)).transpose()
+                    yi = self.trY[i,:].reshape((1,1))
+                    outTemp = out - alpha*self.Grad(x=xi, y=yi, la=la, rtn=out, n=1)    # gradient descent
+                    err = self.oFunc2(out,la=la)
+                    msg = 'iteration: ' + str(it) + ' | small iteration: ' + str(itt) + ' | norm of theta: ' + str(np.linalg.norm(out)) + ' | error: ' + str(err) + '\n'
                     f.write(msg)                            # training details recording
                     print(msg)
-                    if abs(np.linalg.norm(out)-pre) < e:
-                        break;
+                    print(err)
+                    print(M)
+                    line.append(err)
+                    itt += 1
+                    if err < M:
+                        M = err
+                        break
+                out = outTemp
+
             f.close()
+            t = pl.frange(1,len(line),1)
+            plt.plot(t, line)
+            plt.show()
             err = self.oFunc2(out,la=la)                # measuring the square error
  
         # Small Scale Least Squre Regression
@@ -158,8 +176,8 @@ class Reg:
             n,d = x.shape
         if rtn is None:
             rtn = np.zeros(self.dim+1)
-
-        X = np.ones((self.tstSize,self.dim+1))
+        
+        X = np.ones((n,self.dim+1))
         X[:,1:] = x                                                     # X bar
         hl = self.hingeBi(y, np.dot(X,rtn))                             # Hinge Loss
         wbar = np.zeros((self.dim+1,1))                      	# w bar
