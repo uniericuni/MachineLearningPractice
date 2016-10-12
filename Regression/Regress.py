@@ -1,5 +1,6 @@
 import scipy.io as sio
 import numpy as np
+import random
 
 # Regression Object
 class Reg:
@@ -7,6 +8,7 @@ class Reg:
     # constructor
     def __init__(self):
         self.clear()
+        random.seed(0)
 
     # clear regression object
     def clear(self):
@@ -48,8 +50,10 @@ class Reg:
 
         # Robust Regression / Weighted Least Square Regression
         if method is 'RR':
-            print('robut regresion ...')
+            print('robust regresion ...')
             f = open('trainingDetail.txt', 'w')         # record training detail
+            msg = 'Robust Regression Results ... \n\n'
+            f.write(msg)
             while abs(np.linalg.norm(out)-pre) > e:     # not terminate until the minimizer barely changes
                 pre = np.linalg.norm(out)
                 it += 1
@@ -57,18 +61,58 @@ class Reg:
                 msg = 'iteration: ' + str(it) + ' | norm of theta: ' + str(np.linalg.norm(out)) + ' | error: ' + str(self.oFunc(out))
                 f.write(msg)                            # training details recording
             f.close()
+            err = self.oFunc(out)                           # measuring the square error
 
+        # Gradient Descent
+        elif method is 'GD':
+            print('gradient descent regresion ...')
+            f = open('trainingDetail.txt', 'w')         # record training detail
+            msg = 'Robust Regression Results ... \n\n'
+            f.write(msg)
+            while abs(np.linalg.norm(out)-pre) > e:     # not terminate until the minimizer barely changes
+                print("error diff: ",abs(np.linalg.norm(out)-pre))
+                pre = np.linalg.norm(out)
+                it += 1
+                alpha = 100/it
+                out = out - alpha*self.Grad(la=la, rtn=out)    # gradient descent
+                msg = 'iteration: ' + str(it) + ' | norm of theta: ' + str(np.linalg.norm(out)) + ' | error: ' + str(self.oFunc2(out,la=la)) + '\n'
+                f.write(msg)                            # training details recording
+            f.close()
+            err = self.oFunc2(out,la=la)                # measuring the square error
+
+        # Stochastic Gradient Descent
+        elif method is 'SGD':
+            print('stochastic gradient descent regresion ...')
+            f = open('trainingDetail.txt', 'w')         # record training detail
+            msg = 'Robust Regression Results ... \n\n'
+            f.write(msg)
+            while abs(np.linalg.norm(out)-pre) > e:     # not terminate until the minimizer barely changes
+                print("error diff: ",abs(np.linalg.norm(out)-pre))
+                order = random.rand(n,1)
+                pre = np.linalg.norm(out)
+                it += 1
+                alpha = 100/it
+                for i in order:
+                    out = out - alpha*self.Grad(x=self.trX(i,:), y=self.tr, la=la, rtn=out)    # gradient descent
+                    msg = 'iteration: ' + str(it) + ' | norm of theta: ' + str(np.linalg.norm(out)) + ' | error: ' + str(self.oFunc2(out,la=la)) + '\n'
+                    f.write(msg)                            # training details recording
+                    print(msg)
+                    if abs(np.linalg.norm(out)-pre) < e:
+                        break;
+            f.close()
+            err = self.oFunc2(out,la=la)                # measuring the square error
+ 
         # Small Scale Least Squre Regression
         elif method is 'SLSR':
             print('ordinary least square regression ...')
             out = self.sol(False, la=la)                # minimizer
+            err = self.oFunc(out)                           # measuring the square error
         
         # Wrong Method
         else:
             print('error: regression method must exist ...\n')
             quit()
         
-        err = self.oFunc(out)                           # measuring the square error
         print('------------------------------------')
         print('theta', out)
         print('error', err)
@@ -103,6 +147,26 @@ class Reg:
         rtn[1:] = wout[:,0]
         return rtn
 
+    # gradient of hinge loss
+    def Grad(self, x=None, y=None, la=0, n=None, rtn=None):
+        # set defaults
+        if x is None:
+            x=self.tstX
+        if y is None:
+            y=self.tstY
+        if n is None:
+            n,d = x.shape
+        if rtn is None:
+            rtn = np.zeros(self.dim+1)
+
+        X = np.ones((self.tstSize,self.dim+1))
+        X[:,1:] = x                                                     # X bar
+        hl = self.hingeBi(y, np.dot(X,rtn))                             # Hinge Loss
+        wbar = np.zeros((self.dim+1,1))                      	# w bar
+        wbar[1:] = rtn[1:,:]   
+        rtn = -1 * np.sum((hl*y)*X,axis=0).reshape(self.dim+1,1)/n + la*wbar
+        return rtn
+
     # regularized MSE objective function
     def oFunc(self, theta, x=None, y=None, la=0, n=None):
         # set defaults
@@ -116,7 +180,32 @@ class Reg:
         X[:,1:] = x
         return (np.linalg.norm(y[:,0]-np.dot(X,theta))**2)/n + la * np.linalg.norm(theta[1:])**2
     
+    # soft margin
+    def oFunc2(self, theta, x=None, y=None, la=0, n=None):
+        # set defaults
+        if x is None:
+            x=self.tstX
+        if y is None:
+            y=self.tstY
+        if n is None:
+            n,d = x.shape
+        
+        X = np.ones((self.tstSize,self.dim+1))
+        X[:,1:] = x                                                     # X bar
+        hl = self.hinge(y, np.dot(X,theta))                             # Hinge Loss
+        err = np.sum(hl)/n + (la/2)*(np.linalg.norm(theta)**2)
+        return err
+
     # psi/r
     def psi(self, r):
         return 1/np.sqrt(1+r**2)                                    # psi/r weight of a given rho 
+
+    # Hinge Loss
+    def hinge(self,y,t):                                            
+        n,d = y.shape
+        return np.maximum(np.zeros((n,d)),1-y*t)
+        
+    # Binary Hinge Loss
+    def hingeBi(self,y,t):
+        return self.hinge(y,t)/(1-y*t)
         
