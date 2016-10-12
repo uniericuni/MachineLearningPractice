@@ -89,7 +89,6 @@ class Reg:
             f.write(msg)
             line = []
             while abs(np.linalg.norm(out)-pre) > e:     # not terminate until the minimizer barely changes
-                print("error diff: ",abs(np.linalg.norm(out)-pre))
                 order = np.random.permutation(self.trSize)
                 pre = np.linalg.norm(out)
                 it += 1
