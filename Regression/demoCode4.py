@@ -20,7 +20,7 @@ x = x.transpose()
 y = y.transpose()
 n, dim = x.shape
 la = 0.001                                          # regularizing constant
-e = 1e-4
+e = 1e-5
 trainingNum = 20000
 
 # seperating training and testing data

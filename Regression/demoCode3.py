@@ -50,3 +50,27 @@ w = -out[1]/out[2]
 b = -out[0]/out[2]
 plt.plot(t, w*t+b, 'g-', label='hyperplane')
 plt.show()
+
+
+# stochastic gradient regression
+e = 1e-5
+rg.clear()
+w = np.zeros((dim+1, 1))                            # starting point
+rg.dataUpdate(xTr, yTr, xTst, yTst)                 # Newton optimization
+out, err = rg.ridgeReg(w, la, e, method='SGD')              # Regression
+
+# plotting
+fig = plt.figure()
+pid = np.argwhere(y-1)
+nid = np.argwhere(y+1)
+pid = pid[:,0]
+nid = nid[:,0]
+xp = x[pid.transpose()]
+xn = x[nid.transpose()]
+plt.scatter(xn[:,0],xn[:,1], c='b', label='y=-1')
+plt.scatter(xp[:,0],xp[:,1], c='r', label='y=1')
+t = pl.frange(0, 8, 0.01)
+w = -out[1]/out[2]
+b = -out[0]/out[2]
+plt.plot(t, w*t+b, 'g-', label='hyperplane')
+plt.show()
