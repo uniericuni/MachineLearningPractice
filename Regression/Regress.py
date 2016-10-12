@@ -72,7 +72,6 @@ class Reg:
             msg = 'Robust Regression Results ... \n\n'
             f.write(msg)
             while abs(np.linalg.norm(out)-pre) > e:     # not terminate until the minimizer barely changes
-                print("error diff: ",abs(np.linalg.norm(out)-pre))
                 pre = np.linalg.norm(out)
                 it += 1
                 alpha = 100/it
@@ -104,9 +103,6 @@ class Reg:
                     err = self.oFunc2(out,la=la)
                     msg = 'iteration: ' + str(it) + ' | small iteration: ' + str(itt) + ' | norm of theta: ' + str(np.linalg.norm(out)) + ' | error: ' + str(err) + '\n'
                     f.write(msg)                            # training details recording
-                    print(msg)
-                    print(err)
-                    print(M)
                     line.append(err)
                     itt += 1
                     if err < M:
