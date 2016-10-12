@@ -71,14 +71,20 @@ class Reg:
             f = open('trainingDetail.txt', 'w')         # record training detail
             msg = 'Robust Regression Results ... \n\n'
             f.write(msg)
+            line = []
             while abs(np.linalg.norm(out)-pre) > e:     # not terminate until the minimizer barely changes
                 pre = np.linalg.norm(out)
                 it += 1
                 alpha = 100/it
                 out = out - alpha*self.Grad(la=la, rtn=out) 
-                msg = 'iteration: ' + str(it) + ' | norm of theta: ' + str(np.linalg.norm(out)) + ' | error: ' + str(self.oFunc2(out,la=la)) + '\n'
+                err = self.oFunc2(out,la=la)
+                msg = 'iteration: ' + str(it) + ' | norm of theta: ' + str(np.linalg.norm(out)) + ' | error: ' + str(err) + '\n'
+                line.append(err)
                 f.write(msg)                            # training details recording
             f.close()
+            t = pl.frange(1,len(line),1)
+            plt.plot(t, line)
+            plt.show()
             err = self.oFunc2(out,la=la)                # measuring the square error
 
         # Stochastic Gradient Descent
