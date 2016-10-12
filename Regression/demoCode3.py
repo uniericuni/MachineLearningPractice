@@ -49,7 +49,7 @@ t = pl.frange(0, 8, 0.01)
 w = -out[1]/out[2]
 b = -out[0]/out[2]
 plt.plot(t, w*t+b, 'g-', label='hyperplane')
-legend = plt.legend(loc='upper right', show=True)
+legend = plt.legend(loc='upper right', shadow=True)
 plt.show()
 
 # --------------- stochastic gradient regression --------------- #
@@ -72,5 +72,5 @@ t = pl.frange(0, 8, 0.01)
 w = -out[1]/out[2]
 b = -out[0]/out[2]
 plt.plot(t, w*t+b, 'g-', label='hyperplane')
-legend = plt.legend(loc='upper right', show=True)
+legend = plt.legend(loc='upper right', shadow=True)
 plt.show()
