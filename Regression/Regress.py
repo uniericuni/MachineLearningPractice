@@ -104,7 +104,7 @@ class Reg:
                 for i in order:
                     xi = self.trX[i,:].reshape((self.dim,1)).transpose()
                     yi = self.trY[i,:].reshape((1,1))
-                    out = out - alpha*self.Grad(x=xi, y=yi, la=la, rtn=out, n=1)    # gradient descent
+                    outTemp = out - alpha*self.Grad(x=xi, y=yi, la=la, rtn=out, n=1)    # gradient descent
                     err = self.oFunc2(out,la=la)
                     msg = 'iteration: ' + str(it) + ' | small iteration: ' + str(itt) + ' | norm of theta: ' + str(np.linalg.norm(out)) + ' | error: ' + str(err) + '\n'
                     f.write(msg)                        # training details recording
@@ -113,6 +113,7 @@ class Reg:
                     if err < M:                         # small terminating condition
                         M = err
                         break
+                out = outTemp
 
             f.close()
             t = pl.frange(1,len(line),1)
