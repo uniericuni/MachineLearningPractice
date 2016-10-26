@@ -24,15 +24,9 @@ xTst = x[trainingNum:n,:]
 yTst = y[trainingNum:n,:]
 
 # regression object built up
-print "IP kernel"
-la = 10                                             # regularizing constant
-rg = KRR()
-rg.dataUpdate(xTr, yTr, xTst, yTst)                 
-b, err1, err2 = rg.ridgeReg(la)                     # Regression
-
 print "Gaussian kernel"
 la = 0.003                                          # regularizing constant
-rg.clear()
 rg = KRR()
 rg.dataUpdate(xTr, yTr, xTst, yTst)                 
 b, err1, err2 = rg.ridgeReg(la,kr="Gaussian")                     # Regression
+b, err1, err2 = rg.ridgeReg(la,kr="Gaussian",offset=False)        # Regression without offset
