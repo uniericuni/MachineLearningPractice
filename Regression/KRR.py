@@ -58,10 +58,10 @@ class KRR:
         A = self.kernel(x, x) + n*la*I
         y_hatTr  = y_bar + np.dot(np.dot(y_tel.transpose(), np.linalg.inv(A)), self.kernel(x,x))
         y_hatTst = y_bar + np.dot(np.dot(y_tel.transpose(), np.linalg.inv(A)), self.kernel(x,self.tstX))
-        b = y_bar - np.dot(np.dot(y_tel.transpose(), np.linalg.inv(A)), self.kernel(x,np.zeros((1,d))))
+        b = y_bar - np.dot(np.dot(y_tel.transpose(), np.linalg.inv(A)), self.kernel(x,2*np.average(x,axis=0).reshape(1,d)))
         err1 = np.average((y_hatTr.transpose()-self.trY)**2)
         err2 = np.average((y_hatTst.transpose()-self.tstY)**2)
-        print self.kernel(x,np.zeros((1,d)))
+
         print('------------------------------------')
         print('b', b[0,0])
         print('training error', err1)
@@ -85,6 +85,6 @@ class KRR:
             quit()
 
         O1 = np.ones((n,n))/n
-        O2 = np.ones((n,m))/m
+        O2 = np.ones((n,m))/n
         
         return K2 - np.dot(K1, O2) - np.dot(O1, K2) + np.dot( np.dot(O1, K1), O2)
