@@ -27,35 +27,42 @@ class PCA:
 
     # PCA
     def PCA(self):
-        U, S, V = np.linalg.svd(self.trX, full_matrices=False)
+        U, S, V = np.linalg.svd(self.trX, full_matrices=False)  # SVD solution for PCA
         n = S.shape[0]
         t = np.arange(0, n, 1)
+        self.eigenVectors = U
+        self.singularValuess = S
+        
+        # singular value distribution
         """
         fig1 = plt.figure()
         plt.semilogy(t, S)
         plt.title('histogram of singular values')
         plt.show()
         """
-        
-        print('\nvariation growth ...')
-        print('------------------------------------')
+ 
+        # variation percentage 
         totalVar = np.var(np.dot(np.dot(U,np.diag(S)),V))
         var = np.zeros(n)
         vP = 0
-        for k in range(0,n):
-            f = open('PCA.txt', 'w')                    # reduction
-            Sk = np.zeros((self.dim, self.dim))
+        print('variation growth ...')
+        print('------------------------------------')
+        for k in range(0,19):
+            f = open('PCA.txt', 'w') 
+            Sk = np.zeros((self.dim, self.dim))         # proojection result
             Sk[0:k+1, 0:k+1] = np.diag(S[:k+1])
-            Zk = np.dot(np.dot(U, Sk), V)
-            var[k] = np.var(Zk)
-            vP = var[k]/totalVar
-            msg = 'principle components: ' + '{:>3}'.format(str(k+1)) + '| variation percentage: ' + '|'*int(vP*100) + ' %.4f'%vP + ' %'
-            print(msg, end='\r')
+            Zk = np.dot(np.dot(U, Sk), V)              
+            var[k] = np.var(Zk)                         # variation
+            vP = var[k]/totalVar                        # variation percentage
+            msg = 'PCs dimension:' + '{:>3}'.format(str(k+1)) + ', %.3f'%((k+1)*100/self.dim) + '% | variation percentage: ' + '|'*int(vP*100) + ' %.4f'%vP + ' %'
+            print(msg, end='\r')                        # variation growth as message
             if vP > 0.99: break
         f.close()
         t = np.arange(0, k, 1)
         fig2 = plt.figure()
         plt.semilogy(t, var[:k])
         plt.title('histogram of variance')
-        print('\n------------------------------------\n')
+        print(msg)
+        print('done')
+        print('------------------------------------\n')
         plt.show()

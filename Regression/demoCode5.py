@@ -41,11 +41,17 @@ for i,C in enumerate([2**x for x in range(6,12)]):  # k-fold cross validation
             xTstk = np.delete(xTr, np.linspace(delta*i, delta*(i+1)), 0)
             yTstk = np.delete(yTr, np.linspace(delta*i, delta*(i+1)), 0)
             error += classifier.fit(xTrk, np.ravel(yTrk)).score(xTstk, np.ravel(yTstk))/k
-        print "C: ", C, ", sigma: ", sigma, ", error: ", error
+        print "C:", '{:>4}'.format(str(C)), "| sigma: ", '{:>2}'.format(str(sigma)), "| error: ", '%.4f'%error
         if min_error > error:
             min_error = error
             min_index = (C, sigma)
 
+print ""
 print "parameters: ", min_index
+CauchKernel.sigma = min_index[1]
+classifier = SVC(C=min_index[0], tol=1e-2, verbose=False, kernel=CauchKernel)
+print "number of support vector: ", classifier.fit(xTr, np.ravel(yTr)).n_support_
+print "training error: ", classifier.fit(xTr, np.ravel(yTr)).score(xTr, np.ravel(yTr))
+print "tresting error: ", classifier.fit(xTr, np.ravel(yTr)).score(xTst, np.ravel(yTst))
 
 # SVM testing
