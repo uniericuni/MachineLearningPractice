@@ -47,7 +47,7 @@ class PCA:
         vP = 0
         print('variation growth ...')
         print('------------------------------------')
-        for k in range(0,19):
+        for k in range(0,n):
             f = open('PCA.txt', 'w') 
             Sk = np.zeros((self.dim, self.dim))         # proojection result
             Sk[0:k+1, 0:k+1] = np.diag(S[:k+1])

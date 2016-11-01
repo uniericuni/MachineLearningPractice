@@ -36,7 +36,6 @@ u = p.eigenVectors[:,:n]
 u = u.reshape((h,w,n)) 
 u[:,:,1:] = u[:,:,:-1]                                  # substituting the first image with average
 u[:,:,0] = np.average(yalefaces, axis=2)
-print(u.shape)
 f, axs = plt.subplots(4, 5, sharex='col', sharey='row')
 for i in range(0,4):
     for j in range(0,5):
@@ -44,5 +43,5 @@ for i in range(0,4):
         im = u[:,:,index]
         ax = axs[i,j]
         ax.imshow(im, cmap=plt.get_cmap('gray'))
-        ax.set_title(str(index+1)+'th eigen face')
+        ax.set_title(str(index+1)+'th eigenface')
 plt.show()
