@@ -76,7 +76,7 @@ class KRR:
         return b, err1, err2
 
     def kernel(self, x1, x2, offset=True):
-        rho = 1.5
+        rho = 15
         n, d = x1.shape
         m, d = x2.shape
 
