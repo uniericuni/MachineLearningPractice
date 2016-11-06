@@ -13,4 +13,4 @@ def GaussKernel(u, v):
 def CauchKernel(u, v):
     if not hasattr(CauchKernel, 'sigma'):
         CauchKernel.sigma = 1.0
-    return (1+dist2(u,v)/CauchKernel.sigma**2)**(-1)
+    return 1/(1 + dist2(u,v)/(CauchKernel.sigma**2))
