@@ -6,6 +6,7 @@
 *.png
 *.fig
 *.txt
+*.tiff
 
 __pycache__/*
 HW/*
